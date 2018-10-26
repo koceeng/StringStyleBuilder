@@ -1,0 +1,103 @@
+package your.package.name.here;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
+import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class StringStyleBuilder {
+
+    Context context;
+
+    String string = "";
+    List<Integer[]> boldPositions = new ArrayList<>();
+    List<String[]> linkPositions = new ArrayList<>();
+    List<Object[]> colorPositions = new ArrayList<>();
+
+    public StringStyleBuilder addBold(String input) {
+        boldPositions.add(new Integer[] {string.length(), string.length() + input.length()});
+        string += input;
+        return this;
+    }
+
+    public StringStyleBuilder addLink(String input) {
+        return addLink(input, input);
+    }
+
+    public StringStyleBuilder addLink(String input, String linkTo) {
+        linkPositions.add(new String[] {String.valueOf(string.length()), String.valueOf(string.length() + input.length()), linkTo});
+        string += input;
+        return this;
+    }
+
+    public StringStyleBuilder addColored(String input, int color) {
+        colorPositions.add(new Object[] {string.length(), (string.length() + input.length()), color});
+        string += input;
+        return this;
+    }
+
+    public StringStyleBuilder addRegular(String input) {
+        string += input;
+        return this;
+    }
+
+    public SpannableStringBuilder get() {
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(string);
+        for (Integer[] boldPosition : boldPositions) {
+            spannableStringBuilder.setSpan(
+                    new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                    boldPosition[0],
+                    boldPosition[1],
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        for (String[] linkPosition : linkPositions) {
+            LinkedSpannable linkedSpannable = new LinkedSpannable(linkPosition[2]);
+            spannableStringBuilder.setSpan(linkedSpannable,
+                    Integer.valueOf(linkPosition[0]),
+                    Integer.valueOf(linkPosition[1]),
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+        for (Object[] colorPosition : colorPositions) {
+            ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan((int) colorPosition[2]);
+            spannableStringBuilder.setSpan(
+                    foregroundColorSpan,
+                    (int)colorPosition[0],
+                    (int)colorPosition[1],
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        }
+
+        return spannableStringBuilder;
+    }
+
+    private class LinkedSpannable extends ClickableSpan {
+
+        String url;
+        public LinkedSpannable(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void updateDrawState(TextPaint textPaint) {
+            textPaint.setColor(Color.BLUE);
+            textPaint.setUnderlineText(true);
+            // textPaint.setFakeBoldText(true);
+            // textPaint.setTypeface(Typeface.SERIF);
+            // textPaint.setShadowLayer(10, 1, 1, Color.WHITE);
+            // textPaint.setTextSize(15);
+        }
+
+        @Override
+        public void onClick(View widget) {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        }
+    }
+}
