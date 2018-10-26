@@ -6,6 +6,8 @@ StringStyleBuilder stringStyleBuilder = new StringStyleBuilder()
                           .addRegular("Regular text with some ")
                           .addBold("BOLD TEXT ")
                           .addRegular("then some regular again or you might want to ")
-                          .addLink("click this line to go to my github", "https://guthub.com/koceeng");
+                          .addLink("click this line to go to my github ", "https://guthub.com/koceeng")
+                          .addRegular("and ")
+                          .addColored("give me a hug", Color.rgb(255, 0, 0));
 yourTextView.setText(stringStyleBuilder.get(), TextView.BufferType.SPANNABLE);
 ```
